@@ -1,0 +1,14 @@
+{
+  "name": "qa-pilot-project",
+  "version": "1.0.0",
+  "description": "Playwright + TypeScript API tests for Retail Width Checks endpoint",
+  "scripts": {
+    "test": "playwright test",
+    "report": "start reports/custom/index.html"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.47.0",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.5.0"
+  }
+}

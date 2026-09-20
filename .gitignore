@@ -1,0 +1,16 @@
+
+# Dependencies
+node_modules/
+
+# Playwright generated output
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
+
+# Generated reports (runtime output — not source)
+/reports/html/
+/reports/json/
+/reports/custom/
+/reports/junit-results.xml
