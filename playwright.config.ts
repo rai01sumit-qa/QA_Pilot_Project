@@ -2,7 +2,7 @@ import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
   // Root directory for all test specs
-  testDir: './tests/Api_test',
+  testDir: './tests',
 
   // Run each test file in parallel
   fullyParallel: true,
@@ -28,7 +28,6 @@ export default defineConfig({
   reporter: [
     ['list'],                                                      // console output
     ['./utils/CustomReporter.ts'],                                // custom HTML + JSON
-    ['html', { outputFolder: 'reports/html', open: 'never' }],   // Playwright HTML (with traces)
     ['json', { outputFile: 'reports/json/results.json' }],       // JSON report
     ['junit', { outputFile: 'reports/junit-results.xml' }],      // JUnit (CI)
   ],
@@ -47,15 +46,25 @@ export default defineConfig({
     // Capture trace for EVERY test (shows full request/response lifecycle)
     trace: 'on',
 
+    // Capture screenshot for EVERY test
+    screenshot: 'on',
+
+    // Capture video for EVERY test
+    video: 'on',
+
     // Enforce strict HTTPS — do not silently accept bad certs
     ignoreHTTPSErrors: false,
   },
 
-  // ─── Test project ────────────────────────────────────────────────────────────
+  // ─── Test projects ───────────────────────────────────────────────────────────
   projects: [
     {
       name: 'retail-width-checks',
       testDir: './tests/Api_test',
+    },
+    {
+      name: 'compatibility',
+      testDir: './tests/Compatibility',
     },
   ],
 });

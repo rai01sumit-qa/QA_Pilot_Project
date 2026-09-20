@@ -48,6 +48,8 @@ interface TestDetails {
     steps: StepInfo[];
     attachments: AttachmentInfo[];
     tracePath?: string;
+    screenshotPath?: string;
+    videoPath?: string;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -72,9 +74,15 @@ export default class CustomReporter implements Reporter {
         // ── Collect steps ──────────────────────────────────────────────────────
         const steps = this.flattenSteps(result.steps);
 
-        // ── Locate trace attachment ────────────────────────────────────────────
+        // ── Locate trace, screenshot & video attachments ───────────────────────
         const traceAttachment = result.attachments.find(
             (a) => a.name === 'trace' && a.path
+        );
+        const screenshotAttachment = result.attachments.find(
+            (a) => a.contentType === 'image/png' && a.path
+        );
+        const videoAttachment = result.attachments.find(
+            (a) => a.contentType === 'video/webm' && a.path
         );
 
         // ── Collect all attachments ────────────────────────────────────────────
@@ -97,6 +105,8 @@ export default class CustomReporter implements Reporter {
             steps,
             attachments,
             tracePath: traceAttachment?.path,
+            screenshotPath: screenshotAttachment?.path,
+            videoPath: videoAttachment?.path,
         });
     }
 
@@ -493,6 +503,8 @@ export default class CustomReporter implements Reporter {
         const retryChip = t.retries > 0 ? `<span class="chip retry">↺ retry ${t.retries}</span>` : '';
         const stepsHtml = this.renderSteps(t.steps);
         const traceHtml = this.renderTrace(t);
+        const screenshotHtml = this.renderScreenshot(t);
+        const videoHtml = this.renderVideo(t);
         const errorHtml = t.error
             ? `<div class="error-block">${this.esc(t.error)}</div>`
             : '';
@@ -521,6 +533,16 @@ export default class CustomReporter implements Reporter {
             <div class="detail-block">
               <h4>🔍 Trace</h4>
               ${traceHtml}
+            </div>
+          </div>
+          <div class="details-grid" style="margin-top:1rem;">
+            <div class="detail-block">
+              <h4>🖼️ Screenshot</h4>
+              ${screenshotHtml}
+            </div>
+            <div class="detail-block">
+              <h4>🎥 Video</h4>
+              ${videoHtml}
             </div>
           </div>
         </div>
@@ -562,6 +584,37 @@ export default class CustomReporter implements Reporter {
         }
         return `<p style="font-size:0.8rem;color:var(--gray-500);">
       No trace available. Set <code>trace: 'on'</code> in <code>playwright.config.ts</code> to capture traces.
+    </p>`;
+    }
+
+    private renderScreenshot(t: TestDetails): string {
+        if (t.screenshotPath) {
+            const relPath = path.relative(this.outputDir, t.screenshotPath).replace(/\\/g, '/');
+            return `
+        <div class="screenshot-wrap">
+          <img src="${relPath}" alt="Screenshot" style="max-width:100%;border-radius:8px;border:1px solid var(--gray-200);" />
+          <div class="trace-path" style="margin-top:0.4rem;">${t.screenshotPath}</div>
+        </div>`;
+        }
+        return `<p style="font-size:0.8rem;color:var(--gray-500);">
+      No screenshot available. Set <code>screenshot: 'on'</code> in <code>playwright.config.ts</code> to capture screenshots.
+    </p>`;
+    }
+
+    private renderVideo(t: TestDetails): string {
+        if (t.videoPath) {
+            const relPath = path.relative(this.outputDir, t.videoPath).replace(/\\/g, '/');
+            return `
+        <div class="video-wrap">
+          <video controls style="max-width:100%;border-radius:8px;border:1px solid var(--gray-200);">
+            <source src="${relPath}" type="video/webm" />
+            Your browser does not support the video tag.
+          </video>
+          <div class="trace-path" style="margin-top:0.4rem;">${t.videoPath}</div>
+        </div>`;
+        }
+        return `<p style="font-size:0.8rem;color:var(--gray-500);">
+      No video available. Set <code>video: 'on'</code> in <code>playwright.config.ts</code> to capture videos.
     </p>`;
     }
 
